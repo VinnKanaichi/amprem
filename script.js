@@ -8,7 +8,7 @@
 
     // ===== KONFIGURASI =====
     // 🔥 GANTI DENGAN API KEY DARI corsproxy.io
-    const CORS_PROXY_KEY = 'YOUR_CORSPROXY_API_KEY'; // ← GANTI!
+    const CORS_PROXY_KEY = 'd94d3d2f'; // ← GANTI!
     const CORS_PROXY = `https://corsproxy.io/?key=${CORS_PROXY_KEY}&url=`;
     const API_BASE = 'https://am.alwayscodex.eu.cc';
     const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
