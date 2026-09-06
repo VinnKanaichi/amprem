@@ -133,46 +133,75 @@
     }
 
     // ===== VERIFY =====
-    async function handleVerify() {
-        const email = verifyEmailInput.value.trim();
-        const link = magicLinkInput.value.trim();
+async function handleVerify() {
+    const email = verifyEmailInput.value.trim();
+    let link = magicLinkInput.value.trim();
 
-        if (!email) {
-            showResult(verifyResult, '⚠️ Email wajib diisi.', false);
-            return;
-        }
-
-        if (!link) {
-            showResult(verifyResult, '⚠️ Magic link wajib diisi.', false);
-            return;
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            showResult(verifyResult, '⚠️ Format email tidak valid.', false);
-            return;
-        }
-
-        hideResult(verifyResult);
-        setLoading(verifyBtn, true);
-        setStatus('Memverifikasi...', 'idle');
-
-        try {
-            const data = await callApi('verify', { email, link });
-
-            if (data.success) {
-                showResult(verifyResult, data.message || '✅ Verifikasi berhasil!', true);
-                setStatus('Online', 'online');
-            } else {
-                throw new Error(data?.error || data?.message || 'Verifikasi gagal.');
-            }
-        } catch (err) {
-            showResult(verifyResult, '❌ ' + err.message, false);
-            setStatus('Gagal', 'offline');
-        } finally {
-            setLoading(verifyBtn, false);
-        }
+    if (!email) {
+        showResult(verifyResult, '⚠️ Email wajib diisi.', false);
+        return;
     }
 
+    if (!link) {
+        showResult(verifyResult, '⚠️ Magic link wajib diisi.', false);
+        return;
+    }
+
+    // 🔥 EKSTRAK oobCode DARI LINK FIREBASE
+    let oobCode = null;
+    
+    // Coba ekstrak dari URL Firebase
+    const urlParams = new URLSearchParams(link);
+    const encodedLink = urlParams.get('link');
+    
+    if (encodedLink) {
+        // Link Firebase: https://...?link=https://...?oobCode=XXX
+        const decodedLink = decodeURIComponent(encodedLink);
+        const decodedParams = new URLSearchParams(decodedLink.split('?')[1]);
+        oobCode = decodedParams.get('oobCode');
+    } else {
+        // Coba langsung dari URL (format: https://...?oobCode=XXX)
+        const directParams = new URLSearchParams(link.split('?')[1]);
+        oobCode = directParams.get('oobCode');
+    }
+
+    // Kalau masih gak dapet, coba regex
+    if (!oobCode) {
+        const match = link.match(/oobCode=([^&]+)/);
+        if (match) oobCode = match[1];
+    }
+
+    if (!oobCode) {
+        showResult(verifyResult, '⚠️ Gagal mengekstrak kode verifikasi dari link. Pastikan link lengkap.', false);
+        return;
+    }
+
+    console.log('🔑 Extracted oobCode:', oobCode);
+
+    hideResult(verifyResult);
+    setLoading(verifyBtn, true);
+    setStatus('Memverifikasi...', 'idle');
+
+    try {
+        // 🔥 KIRIM HANYA oobCode KE API
+        const data = await callApi('verify', { 
+            email, 
+            oobCode: oobCode  // ← Kirim kode doang
+        });
+
+        if (data.success) {
+            showResult(verifyResult, data.message || '✅ Verifikasi berhasil!', true);
+            setStatus('Online', 'online');
+        } else {
+            throw new Error(data?.error || data?.message || 'Verifikasi gagal.');
+        }
+    } catch (err) {
+        showResult(verifyResult, '❌ ' + err.message, false);
+        setStatus('Gagal', 'offline');
+    } finally {
+        setLoading(verifyBtn, false);
+    }
+}
     // ===== TABS =====
     function switchTab(tabId) {
         tabBtns.forEach(btn => {
