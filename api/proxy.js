@@ -1,3 +1,4 @@
+// api/proxy.js
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,17 +12,19 @@ export default async function handler(req, res) {
     const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
 
     try {
-        const { email, link } = req.body;
-        const path = req.url;
+        const { email, link, endpoint } = req.body; // ← BACA ENDPOINT DARI BODY!
 
         let targetUrl;
-        if (path.includes('send')) {
+        if (endpoint === 'send') {
             targetUrl = 'https://am.alwayscodex.eu.cc/api/v1/bot-premium/send-link';
-        } else if (path.includes('verify')) {
+        } else if (endpoint === 'verify') {
             targetUrl = 'https://am.alwayscodex.eu.cc/api/v1/bot-premium/activate';
         } else {
-            return res.status(400).json({ error: 'Unknown endpoint' });
+            return res.status(400).json({ error: 'Unknown endpoint. Use "send" or "verify"' });
         }
+
+        const payload = { email };
+        if (link) payload.link = link;
 
         const response = await fetch(targetUrl, {
             method: 'POST',
@@ -29,7 +32,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json',
                 'X-API-Key': API_KEY,
             },
-            body: JSON.stringify({ email, link }),
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
