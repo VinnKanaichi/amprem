@@ -1,5 +1,5 @@
 // ============================================================
-//  DENIA AM PREM — SCRIPT
+//  DENIA AM PREM — SCRIPT (CORS PROXY DENGAN API KEY)
 //  DEV: VINN & CHELL REN
 // ============================================================
 
@@ -7,12 +7,14 @@
     'use strict';
 
     // ===== KONFIGURASI =====
-    // 🔥 PAKAI URL VERCEL API KAMU
-    const API_BASE = 'https://deniaalightmotionpremiumapi.vercel.app/api/proxy';
-    
-    // Endpoint untuk proxy
-    const SEND_ENDPOINT = '/send';
-    const VERIFY_ENDPOINT = '/verify';
+    // 🔥 GANTI DENGAN API KEY DARI corsproxy.io
+    const CORS_PROXY_KEY = 'YOUR_CORSPROXY_API_KEY'; // ← GANTI!
+    const CORS_PROXY = `https://corsproxy.io/?key=${CORS_PROXY_KEY}&url=`;
+    const API_BASE = 'https://am.alwayscodex.eu.cc';
+    const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
+
+    const SEND_ENDPOINT = '/api/v1/bot-premium/send-link';
+    const VERIFY_ENDPOINT = '/api/v1/bot-premium/activate';
 
     // ===== DOM =====
     const overlay = document.getElementById('welcomeOverlay');
@@ -72,7 +74,7 @@
 
     // ===== API =====
     async function callApi(endpoint, body) {
-        const url = API_BASE + endpoint;
+        const url = CORS_PROXY + API_BASE + endpoint;
         console.log('📍 Fetching:', url);
         console.log('📦 Body:', body);
 
@@ -80,6 +82,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-API-Key': API_KEY,
             },
             body: JSON.stringify(body),
         });
