@@ -1,23 +1,27 @@
-// api/proxy.js
 export default async function handler(req, res) {
-    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
         res.status(200).end();
         return;
     }
 
-    const API_BASE = 'https://am.alwayscodex.eu.cc';
     const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
 
     try {
-        const path = req.url; // /send atau /verify
-        const targetUrl = path.includes('send') 
-            ? `${API_BASE}/api/v1/bot-premium/send-link`
-            : `${API_BASE}/api/v1/bot-premium/activate`;
+        const { email, link } = req.body;
+        const path = req.url;
+
+        let targetUrl;
+        if (path.includes('send')) {
+            targetUrl = 'https://am.alwayscodex.eu.cc/api/v1/bot-premium/send-link';
+        } else if (path.includes('verify')) {
+            targetUrl = 'https://am.alwayscodex.eu.cc/api/v1/bot-premium/activate';
+        } else {
+            return res.status(400).json({ error: 'Unknown endpoint' });
+        }
 
         const response = await fetch(targetUrl, {
             method: 'POST',
@@ -25,7 +29,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json',
                 'X-API-Key': API_KEY,
             },
-            body: JSON.stringify(req.body),
+            body: JSON.stringify({ email, link }),
         });
 
         const data = await response.json();
