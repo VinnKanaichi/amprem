@@ -7,15 +7,12 @@
     'use strict';
 
     // ===== KONFIGURASI =====
-    // Ganti API_BASE dengan URL Vercel-mu
-const API_BASE = 'https://your-app.vercel.app/api/proxy';
-
-// Panggil:
-const data = await callApi('/send', { email });
-const data = await callApi('/verify', { email, link });
-    const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
-    const SEND_ENDPOINT = '/api/v1/bot-premium/send-link';
-    const VERIFY_ENDPOINT = '/api/v1/bot-premium/activate';
+    // 🔥 PAKAI URL VERCEL API KAMU
+    const API_BASE = 'https://deniaalightmotionpremiumapi.vercel.app/api/proxy';
+    
+    // Endpoint untuk proxy
+    const SEND_ENDPOINT = '/send';
+    const VERIFY_ENDPOINT = '/verify';
 
     // ===== DOM =====
     const overlay = document.getElementById('welcomeOverlay');
@@ -75,18 +72,24 @@ const data = await callApi('/verify', { email, link });
 
     // ===== API =====
     async function callApi(endpoint, body) {
-        const response = await fetch(API_BASE + endpoint, {
+        const url = API_BASE + endpoint;
+        console.log('📍 Fetching:', url);
+        console.log('📦 Body:', body);
+
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': API_KEY,
             },
             body: JSON.stringify(body),
         });
 
         let data;
-        try { data = await response.json(); } 
-        catch { throw new Error('Response server tidak valid.'); }
+        try { 
+            data = await response.json(); 
+        } catch { 
+            throw new Error('Response server tidak valid.'); 
+        }
 
         if (!response.ok) {
             throw new Error(data?.error || data?.message || `HTTP ${response.status}`);
