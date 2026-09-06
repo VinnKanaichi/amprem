@@ -1,5 +1,5 @@
 // ============================================================
-//  DENIA AM PREM — SCRIPT (CORS PROXY DENGAN API KEY)
+//  DENIA AM PREM — SCRIPT (VERCEL PROXY)
 //  DEV: VINN & CHELL REN
 // ============================================================
 
@@ -7,15 +7,9 @@
     'use strict';
 
     // ===== KONFIGURASI =====
-    // 🔥 GANTI DENGAN API KEY DARI corsproxy.io
-    const CORS_PROXY_KEY = 'd94d3d2f'; // ← GANTI!
-    const CORS_PROXY = `https://corsproxy.io/?key=${CORS_PROXY_KEY}&url=`;
-    const API_BASE = 'https://am.alwayscodex.eu.cc';
-    const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
-
-    const SEND_ENDPOINT = '/api/v1/bot-premium/send-link';
-    const VERIFY_ENDPOINT = '/api/v1/bot-premium/activate';
-
+    // 🔥 PAKE VERCEL PROXY KAMU
+    const API_BASE = 'https://deniaalightmotionpremiumapi.vercel.app/api/proxy';
+    
     // ===== DOM =====
     const overlay = document.getElementById('welcomeOverlay');
     const enterBtn = document.getElementById('enterBtn');
@@ -74,17 +68,19 @@
 
     // ===== API =====
     async function callApi(endpoint, body) {
-        const url = CORS_PROXY + API_BASE + endpoint;
+        const url = API_BASE;
         console.log('📍 Fetching:', url);
-        console.log('📦 Body:', body);
+        console.log('📦 Body:', { ...body, endpoint });
 
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': API_KEY,
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify({ 
+                ...body, 
+                endpoint: endpoint 
+            }),
         });
 
         let data;
@@ -119,7 +115,7 @@
         setStatus('Mengirim...', 'idle');
 
         try {
-            const data = await callApi(SEND_ENDPOINT, { email });
+            const data = await callApi('send', { email });
 
             if (data.success) {
                 showResult(sendResult, data.message || '✅ Magic link berhasil dikirim! Cek inbox/spam.', true);
@@ -161,7 +157,7 @@
         setStatus('Memverifikasi...', 'idle');
 
         try {
-            const data = await callApi(VERIFY_ENDPOINT, { email, link });
+            const data = await callApi('verify', { email, link });
 
             if (data.success) {
                 showResult(verifyResult, data.message || '✅ Verifikasi berhasil!', true);
