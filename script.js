@@ -7,7 +7,12 @@
     'use strict';
 
     // ===== KONFIGURASI =====
-    const API_BASE = 'https://am.alwayscodex.eu.cc';
+    // Ganti API_BASE dengan URL Vercel-mu
+const API_BASE = 'https://your-app.vercel.app/api/proxy';
+
+// Panggil:
+const data = await callApi('/send', { email });
+const data = await callApi('/verify', { email, link });
     const API_KEY = 'Codex-CA2E0674-409EA97A-F5A95E31-5734966F';
     const SEND_ENDPOINT = '/api/v1/bot-premium/send-link';
     const VERIFY_ENDPOINT = '/api/v1/bot-premium/activate';
